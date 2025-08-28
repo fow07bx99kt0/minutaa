@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solicitação de reunião para assinatura de minuta</title>
+  <style>
+    :root {
+      --bg: #0f172a; /* slate-900 */
+      --card: #111827; /* gray-900 */
+      --muted: #94a3b8; /* slate-400 */
+      --text: #e5e7eb; /* gray-200 */
+      --brand: #22d3ee; /* cyan-400 */
+      --ok: #10b981; /* emerald-500 */
+      --warn: #f59e0b; /* amber-500 */
+      --err: #ef4444; /* red-500 */
+      --border: #1f2937; /* gray-800 */
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji"; background: radial-gradient(1200px 800px at 10% -10%, rgba(34,211,238,.08), transparent 60%), radial-gradient(1000px 700px at 110% 10%, rgba(16,185,129,.08), transparent 55%), var(--bg); color: var(--text); }
+    header { padding: 32px 16px 8px; text-align: center; }
+    h1 { font-size: clamp(1.4rem, 2.5vw, 2rem); margin: 0 0 8px; letter-spacing: .3px; }
+    p.sub { margin: 0; color: var(--muted); font-size: .95rem; }
+    .container { max-width: 880px; margin: 24px auto 48px; padding: 16px; }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,.00)); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,.25); backdrop-filter: blur(3px); }
+    form { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .field { grid-column: span 12; display: flex; flex-direction: column; gap: 6px; }
+    @media (min-width: 720px){ .col-6 { grid-column: span 6; } .col-4 { grid-column: span 4; } .col-3 { grid-column: span 3; } }
+    label { font-weight: 600; font-size: .95rem; }
+    input[type="text"], input[type="email"], input[type="date"], select, textarea {
+      width: 100%; padding: 12px 13px; border-radius: 12px; border: 1px solid var(--border); background: #0b1220; color: var(--text); outline: none; transition: border-color .2s, box-shadow .2s;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { border-color: var(--brand); box-shadow: 0 0 0 4px rgba(34,211,238,.12); }
+    .hint { color: var(--muted); font-size: .85rem; }
+    .row { display:flex; gap:12px; align-items:center; }
+    .chips { display:flex; gap:6px; flex-wrap:wrap; }
+    .chip { border:1px dashed var(--border); padding:4px 8px; border-radius:999px; font-size:.8rem; color:var(--muted); }
+    .btn { cursor: pointer; border: 1px solid var(--border); background: linear-gradient(180deg, rgba(34,211,238,.15), rgba(34,211,238,.06)); color: #d1f5fb; padding: 12px 16px; border-radius: 12px; font-weight: 700; letter-spacing:.3px; display: inline-flex; align-items: center; gap: 8px; }
+    .btn[disabled] { opacity: .6; cursor: not-allowed; }
+    .btn.secondary { background: transparent; color: var(--text); }
+    .hr { height:1px; background: var(--border); margin: 8px 0 12px; border-radius: 999px; }
+    .badge { display:inline-flex; align-items:center; gap:8px; font-size:.85rem; color:#bbf7d0; background: rgba(16,185,129,.14); padding:6px 10px; border-radius: 999px; border:1px solid rgba(16,185,129,.35) }
+    .warn { color:#fde68a; background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.35); }
+    .err { color:#fecaca; background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.35); }
+    .success { border-left:3px solid var(--ok); padding:12px 14px; background: rgba(16,185,129,.07); border-radius: 8px; }
+    .error { border-left:3px solid var(--err); padding:12px 14px; background: rgba(239,68,68,.07); border-radius: 8px; }
+    .footer-note { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Solicitação de reunião para assinatura de minuta</h1>
+    <p class="sub">Janela padrão: <strong>terças e quintas</strong>, das <strong>14:00 às 17:00</strong> (slots de 30 minutos).<br/>A reserva só é efetivada após <strong>aprovação</strong>.</p>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="row" style="justify-content: space-between; margin-bottom: 8px;">
+        <div class="chips">
+          <span class="chip">Aprovação: <strong>felipe.ribeiro@corpalms.com.br</strong></span>
+          <span class="chip">Fuso: America/Campo_Grande (UTC−04)</span>
+          <span class="chip">Duração: 30 min</span>
+        </div>
+        <div id="statusBadge" class="badge" hidden>Pronto</div>
+      </div>
+      <div class="hr"></div>
+
+      <form id="form">
+        <div class="field col-6">
+          <label for="cliente">Nome do cliente *</label>
+          <input id="cliente" name="cliente" type="text" autocomplete="name" required />
+        </div>
+        <div class="field col-6">
+          <label for="empreendimento">Nome do empreendimento *</label>
+          <input id="empreendimento" name="empreendimento" type="text" required />
+        </div>
+        <div class="field col-3">
+          <label for="quadra">Quadra *</label>
+          <input id="quadra" name="quadra" type="text" required />
+        </div>
+        <div class="field col-3">
+          <label for="lote">Lote *</label>
+          <input id="lote" name="lote" type="text" required />
+        </div>
+        <div class="field col-6">
+          <label for="email">E-mail do solicitante (receberá o convite) *</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required />
+          <div class="hint">Utilizaremos este e-mail para o convite da reunião no Teams e para a confirmação/recusa.</div>
+        </div>
+
+        <div class="field col-4">
+          <label for="data">Data (ter/qui) *</label>
+          <input id="data" name="data" type="date" required />
+          <div class="hint">Datas fora de ter/qui ficam bloqueadas.</div>
+        </div>
+        <div class="field col-4">
+          <label for="horario">Horário *</label>
+          <select id="horario" name="horario" required>
+            <option value="">Selecione a data primeiro</option>
+          </select>
+          <div class="hint">Exibimos apenas horários livres no calendário do aprovador.</div>
+        </div>
+
+        <div class="field col-12">
+          <label for="obs">Observações (opcional)</label>
+          <textarea id="obs" name="obs" placeholder="Contextualize a minuta, pendências, documentos necessários, etc."></textarea>
+        </div>
+
+        <div class="field col-12" id="feedback" hidden></div>
+
+        <div class="field col-12" style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+          <button type="reset" class="btn secondary" id="resetBtn">Limpar</button>
+          <button type="submit" class="btn" id="submitBtn">Enviar solicitação</button>
+        </div>
+      </form>
+
+      <p class="footer-note">Ao enviar, sua solicitação irá para aprovação. Em caso de aprovação, o evento é criado com link do Microsoft Teams e você recebe o convite por e-mail. Em caso de recusa, você recebe a justificativa.</p>
+    </div>
+  </div>
+
+  <script>
+    // ====== CONFIGURAÇÃO DO BACKEND (substitua pelos seus endpoints do Power Automate/Azure) ======
+    const SLOTS_ENDPOINT = "https://SEU-ENDPOINT-SLOTS";      // Flow 1 (GET Slots): HTTP POST { date: "YYYY-MM-DD" }
+    const REQUEST_ENDPOINT = "https://SEU-ENDPOINT-REQUEST";  // Flow 2 (Process Request): HTTP POST com payload completo
+    const API_KEY = "SUA-CHAVE-CURTA-SEGURA";                 // Opcional: cabeçalho x-api-key validado no backend
+
+    // ====== REGRAS DE AGENDA ======
+    const TIMEZONE = "America/Campo_Grande"; // referência visual (servidor deve usar "Central Brazilian Standard Time")
+    const SLOT_MINUTES = 30;
+    const START_HOUR = 14;  // 14:00
+    const END_HOUR = 17;    // janela vai até 17:00 (último slot inicia às 16:30)
+
+    // Helpers
+    const $ = (sel) => document.querySelector(sel);
+    const fmt = (date) => new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full', timeZone: TIMEZONE }).format(date);
+
+    function isTueOrThu(dateStr) {
+      if (!dateStr) return false;
+      const d = new Date(dateStr + 'T12:00:00'); // evitar problemas de fuso
+      const dow = d.getDay(); // 0=Dom, 1=Seg, 2=Ter, 3=Qua, 4=Qui, 5=Sex, 6=Sab
+      return dow === 2 || dow === 4;
+    }
+
+    function genSlots() {
+      const slots = [];
+      for (let h = START_HOUR; h < END_HOUR; h++) {
+        slots.push(\`\${String(h).padStart(2,'0')}:00\`);
+        slots.push(\`\${String(h).padStart(2,'0')}:30\`);
+      }
+      return slots; // até 16:30
+    }
+
+    function setBadge(text, cls) {
+      const badge = $('#statusBadge');
+      if (!text) { badge.hidden = true; return; }
+      badge.textContent = text;
+      badge.className = 'badge' + (cls ? ' ' + cls : '');
+      badge.hidden = false;
+    }
+
+    function setFeedback(html, type = 'success') {
+      const fb = $('#feedback');
+      fb.className = type === 'error' ? 'error' : 'success';
+      fb.innerHTML = html;
+      fb.hidden = false;
+    }
+
+    function clearFeedback() {
+      const fb = $('#feedback');
+      fb.hidden = true; fb.textContent = ''; fb.className = '';
+    }
+
+    function blockNonTueThu() {
+      const input = $('#data');
+      const today = new Date();
+      // permitir a partir de hoje
+      input.min = today.toISOString().slice(0,10);
+      input.addEventListener('input', () => {
+        clearFeedback();
+        const val = input.value;
+        const select = $('#horario');
+        select.innerHTML = '';
+        if (!isTueOrThu(val)) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'Selecione uma terça ou quinta.';
+          select.appendChild(opt);
+          select.disabled = true;
+          setBadge('Escolha uma data de terça ou quinta', 'warn');
+          return;
+        }
+        select.disabled = false;
+        setBadge('Checando disponibilidade…');
+        populateSlots(val);
+      });
+    }
+
+    async function populateSlots(dateStr) {
+      const select = $('#horario');
+      select.innerHTML = '';
+      const all = genSlots();
+
+      // fallback: se backend não configurado, mostra todos e marca aviso
+      const backendConfigured = SLOTS_ENDPOINT && SLOTS_ENDPOINT.startsWith('http');
+      if (!backendConfigured) {
+        all.forEach(t => addOption(select, t, true));
+        setBadge('Modo offline: sem checagem de conflitos', 'warn');
+        return;
+      }
+
+      try {
+        const res = await fetch(SLOTS_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+          body: JSON.stringify({ date: dateStr })
+        });
+        if (!res.ok) throw new Error('Falha ao consultar disponibilidade');
+        const data = await res.json();
+        // Esperado: { available: ["14:00","14:30",...], busy: [..] }
+        const available = Array.isArray(data.available) ? data.available : all;
+        if (available.length === 0) {
+          const opt = document.createElement('option');
+          opt.value = '';
+          opt.textContent = 'Nenhum horário disponível nesta data';
+          select.appendChild(opt);
+          select.disabled = true;
+          setBadge('Dia lotado', 'err');
+          return;
+        }
+        available.forEach(t => addOption(select, t, true));
+        setBadge('Horários atualizados');
+      } catch (e) {
+        console.error(e);
+        all.forEach(t => addOption(select, t, true));
+        setBadge('Falha ao checar conflitos — exibindo todos', 'warn');
+      }
+    }
+
+    function addOption(select, time, enabled=true) {
+      const opt = document.createElement('option');
+      opt.value = time;
+      opt.textContent = time;
+      opt.disabled = !enabled;
+      select.appendChild(opt);
+    }
+
+    function serializeForm(form) {
+      const fd = new FormData(form);
+      return Object.fromEntries(fd.entries());
+    }
+
+    function validate(formData) {
+      const required = ['cliente','empreendimento','quadra','lote','email','data','horario'];
+      for (const k of required) { if (!formData[k] || String(formData[k]).trim()==='') return false; }
+      if (!isTueOrThu(formData.data)) return false;
+      return true;
+    }
+
+    async function submitForm(e) {
+      e.preventDefault(); clearFeedback(); setBadge('Enviando…');
+      const form = e.currentTarget;
+      const payload = serializeForm(form);
+      if (!validate(payload)) {
+        setFeedback('Revise os campos obrigatórios e selecione uma <strong>terça</strong> ou <strong>quinta</strong>.', 'error');
+        setBadge('Pendências no formulário', 'err');
+        return;
+      }
+
+      // Monta ISO local (sem timezone) apenas para referência; o backend deve usar o fuso "Central Brazilian Standard Time"
+      const startISO = \`\${payload.data}T\${payload.horario}:00\`;
+      const body = {
+        cliente: payload.cliente.trim(),
+        empreendimento: payload.empreendimento.trim(),
+        quadra: payload.quadra.trim(),
+        lote: payload.lote.trim(),
+        emailSolicitante: payload.email.trim(),
+        data: payload.data,
+        horario: payload.horario,
+        inicioISO: startISO,        // ex.: 2025-08-29T14:00:00
+        duracaoMin: 30,
+        observacoes: (payload.obs || '').trim(),
+        timezoneServer: 'Central Brazilian Standard Time'
+      };
+
+      const backendConfigured = REQUEST_ENDPOINT && REQUEST_ENDPOINT.startsWith('http');
+      if (!backendConfigured) {
+        setFeedback('✅ Pré-visualização: solicitação pronta para envio. Configure o backend (Power Automate/Azure) nos constantes <code>REQUEST_ENDPOINT</code> e <code>SLOTS_ENDPOINT</code> para operar em produção.', 'success');
+        setBadge('Backend não configurado', 'warn');
+        return;
+      }
+
+      try {
+        $('#submitBtn').disabled = true;
+        const res = await fetch(REQUEST_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': API_KEY },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok) throw new Error(data.error || 'Falha ao enviar solicitação');
+
+        setFeedback(\`✅ Solicitação enviada para aprovação. Você receberá um e-mail quando o aprovador decidir. <br><br><small><em>Protocolo:</em> \${data.id || '(gerado pelo fluxo)'}.</small>\`, 'success');
+        setBadge('Aguardando aprovação');
+        form.reset();
+        $('#horario').innerHTML = '<option value="">Selecione a data primeiro</option>';
+      } catch (err) {
+        console.error(err);
+        setFeedback('❌ Ocorreu um erro ao enviar sua solicitação. Tente novamente em instantes. Se persistir, contate o suporte.', 'error');
+        setBadge('Erro no envio', 'err');
+      } finally {
+        $('#submitBtn').disabled = false;
+      }
+    }
+
+    // Init
+    blockNonTueThu();
+    $('#form').addEventListener('submit', submitForm);
+    $('#resetBtn').addEventListener('click', () => { clearFeedback(); setBadge(''); $('#horario').innerHTML = '<option value="">Selecione a data primeiro</option>'; });
+  </script>
+</body>
+</html>
