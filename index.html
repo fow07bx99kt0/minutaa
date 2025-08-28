@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Solicitação de reunião para assinatura de minuta</title>
+  <style>
+    :root {
+      --bg: #f7faf9;
+      --card: #ffffff;
+      --muted: #64748b;
+      --text: #0f172a;
+      --brand: #22c55e;
+      --brand-600: #16a34a;
+      --ok: #16a34a;
+      --warn: #ca8a04;
+      --err: #dc2626;
+      --border: #e5e7eb;
+      --shadow: 0 10px 30px rgba(2, 8, 20, .06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 10% -10%, rgba(34,197,94,.08), transparent 55%),
+        radial-gradient(800px 480px at 110% 0%, rgba(16,185,129,.08), transparent 50%),
+        var(--bg);
+    }
+    /* HEADER COMPACTO */
+    header.hero {
+      position: relative;
+      min-height: 18vh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 22px 12px;
+      background:
+        radial-gradient(900px 260px at 0% 0%, rgba(34,197,94,.10), transparent 50%),
+        radial-gradient(840px 220px at 100% 0%, rgba(16,185,129,.10), transparent 45%),
+        linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.42));
+      border-bottom: 1px solid var(--border);
+    }
+    h1 { font-size: clamp(1.4rem, 2.6vw, 2.1rem); margin: 0; letter-spacing: .2px; }
+
+    .container { max-width: 980px; margin: -18px auto 56px; padding: 0 16px; }
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 20px; box-shadow: var(--shadow); }
+
+    form { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+    .field { grid-column: span 12; display: flex; flex-direction: column; gap: 6px; }
+    @media (min-width: 860px){ .col-6 { grid-column: span 6; } .col-4 { grid-column: span 4; } .col-3 { grid-column: span 3; } }
+    label { font-weight: 600; font-size: .95rem; color: #0b1220; }
+    input[type="text"], input[type="email"], select, textarea {
+      width: 100%; padding: 12px 13px; border-radius: 12px; border: 1px solid var(--border);
+      background: #fff; color: var(--text); outline: none; transition: border-color .2s, box-shadow .2s, background-color .2s;
+    }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--brand);
+      box-shadow: 0 0 0 4px rgba(34,197,94,.18);
+      background: #fff;
+    }
+    .hint { color: var(--muted); font-size: .85rem; }
+
+    .row { display:flex; gap:12px; align-items:center; justify-content:flex-end; }
+    .hr { height:1px; background: var(--border); margin: 8px 0 12px; border-radius: 999px; }
+    .badge { display:inline-flex; align-items:center; gap:8px; font-size:.85rem; color:#065f46; background: #dcfce7; padding:6px 10px; border-radius: 999px; border:1px solid #bbf7d0 }
+    .warn { color:#92400e; background: #fef3c7; border-color: #fde68a; }
+    .err  { color:#991b1b; background: #fee2e2; border-color: #fecaca; }
+
+    .btn {
+      cursor: pointer; border: 1px solid var(--brand);
+      background: linear-gradient(180deg, rgba(34,197,94,.18), rgba(34,197,94,.12));
+      color: #064e3b; padding: 12px 16px; border-radius: 12px; font-weight: 700; letter-spacing:.3px; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn:hover { filter: saturate(1.05) brightness(1.02); }
+    .btn[disabled] { opacity: .6; cursor: not-allowed; }
+    .btn.secondary { background: #fff; border-color: var(--border); color: #0f172a; }
+
+    .success { border-left:3px solid var(--ok); padding:12px 14px; background: #ecfdf5; border-radius: 8px; }
+    .error   { border-left:3px solid var(--err); padding:12px 14px; background: #fef2f2; border-radius: 8px; }
+
+    /* Calendar — versão clara */
+    .calendar { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: #fff; }
+    .cal-head { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--border); background:#f9fafb; }
+    .cal-title { font-weight: 700; letter-spacing: .3px; }
+    .cal-nav { display:flex; gap:8px; }
+    .cal-btn { border:1px solid var(--border); background: #fff; color: var(--text); border-radius: 8px; padding:6px 10px; cursor:pointer; }
+    .cal-btn:hover { border-color: var(--brand); }
+    .cal-grid { display:grid; grid-template-columns: repeat(7, 1fr); gap:6px; padding:10px; }
+    .cal-dow { text-align:center; font-size:.8rem; color: var(--muted); }
+    .cal-day { text-align:center; padding:8px 0; border-radius: 10px; cursor:pointer; border:1px solid transparent; }
+    .cal-day:hover { border-color: var(--brand); background:#f0fdf4; }
+    .cal-day.disabled { opacity:.45; cursor:not-allowed; }
+    .cal-day.selected { background: #dcfce7; border-color: #86efac; }
+
+    /* Slots grid — versão clara */
+    .slot-wrap { border:1px solid var(--border); border-radius:12px; padding:10px; background:#fff; display:flex; flex-direction:column; gap:8px; }
+    .slot-grid { display:grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap:8px; }
+    @media (max-width: 640px) { .slot-grid { grid-template-columns: repeat(2, minmax(0,1fr)); } }
+    .slot { background: #fff; border:1px solid var(--border); border-radius:10px; padding:10px 8px; text-align:center; cursor:pointer; user-select:none; }
+    .slot:hover { border-color: var(--brand); background:#f0fdf4; }
+    .slot.busy { opacity:.40; cursor:not-allowed; text-decoration: line-through; }
+    .slot.selected { background: var(--brand); color:#fff; border-color: var(--brand-600); }
+
+    .footer-note { color: var(--muted); font-size: .8rem; text-align: center; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <h1>Solicitação de reunião para assinatura de minuta</h1>
+  </header>
+
+  <div class="container">
+    <div class="card">
+      <div class="row" style="margin-bottom: 8px;">
+        <div id="statusBadge" class="badge" hidden>Pronto</div>
+      </div>
+      <div class="hr"></div>
+
+      <form id="form">
+        <div class="field col-6">
+          <label for="cliente">Nome do cliente *</label>
+          <input id="cliente" name="cliente" type="text" autocomplete="name" required />
+        </div>
+        <div class="field col-6">
+          <label for="empreendimento">Nome do empreendimento *</label>
+          <input id="empreendimento" name="empreendimento" type="text" required />
+        </div>
+        <div class="field col-3">
+          <label for="quadra">Quadra *</label>
+          <input id="quadra" name="quadra" type="text" required />
+        </div>
+        <div class="field col-3">
+          <label for="lote">Lote *</label>
+          <input id="lote" name="lote" type="text" required />
+        </div>
+        <div class="field col-6">
+          <label for="email">E-mail do solicitante (receberá o convite) *</label>
+          <input id="email" name="email" type="email" inputmode="email" autocomplete="email" required />
+          <div class="hint">Utilizaremos este e-mail para o convite da reunião no Teams e para a confirmação/recusa.</div>
+        </div>
+
+        <div class="field col-6">
+          <label>Data (ter/qui) *</label>
+          <input id="data" name="data" type="hidden" required />
+          <div id="calendar" class="calendar" aria-label="Seletor de datas"></div>
+          <div class="legend" id="dateLegend" style="color:var(--muted); font-size:.85rem;">Selecione uma data válida.</div>
+        </div>
+
+        <div class="field col-6">
+          <label>Horário *</label>
+          <input id="horario" name="horario" type="hidden" required />
+          <div class="slot-wrap">
+            <div class="slot-grid" id="slotGrid" aria-label="Horários disponíveis"></div>
+            <div class="legend" id="slotLegend" style="color:var(--muted); font-size:.85rem;">Escolha uma data para carregar os horários.</div>
+          </div>
+        </div>
+
+        <div class="field col-12">
+          <label for="obs">Observações (opcional)</label>
+          <textarea id="obs" name="obs" placeholder="Contextualize a minuta, pendências, documentos necessários, etc."></textarea>
+        </div>
+
+        <div class="field col-12" id="feedback" hidden></div>
+
+        <div class="field col-12" style="display:flex; gap:10px; justify-content:flex-end; margin-top:6px;">
+          <button type="reset" class="btn secondary" id="resetBtn">Limpar</button>
+          <button type="submit" class="btn" id="submitBtn">Enviar solicitação</button>
+        </div>
+      </form>
+
+      <p class="footer-note">Ao enviar, sua solicitação irá para aprovação. Em caso de aprovação, o evento é criado com link do Microsoft Teams e você recebe o convite por e-mail. Em caso de recusa, você recebe a justificativa.</p>
+    </div>
+  </div>
+
+  <script>
+    const SLOTS_ENDPOINT = "https://SEU-ENDPOINT-SLOTS";
+    const REQUEST_ENDPOINT = "https://SEU-ENDPOINT-REQUEST";
+    const API_KEY = "SUA-CHAVE-CURTA-SEGURA";
+
+    const TIMEZONE = "America/Campo_Grande";
+    const SLOT_MINUTES = 30;
+    const START_HOUR = 14;
+    const END_HOUR = 17;
+
+    const $ = (sel) => document.querySelector(sel);
+    const pad2 = (n) => String(n).padStart(2, '0');
+    function isTueOrThu(date) { const dow = date.getDay(); return dow === 2 || dow === 4; }
+    function toISODate(date) { return `${date.getFullYear()}-${pad2(date.getMonth()+1)}-${pad2(date.getDate())}`; }
+    function todayStart(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+    function genSlots(){ const s=[]; for(let h=START_HOUR; h<END_HOUR; h++){ s.push(`${pad2(h)}:00`); s.push(`${pad2(h)}:30`);} return s; }
+    function setBadge(text, cls){ const b=$('#statusBadge'); if(!text){b.hidden=true;return;} b.textContent=text; b.className='badge'+(cls?' '+cls:''); b.hidden=false; }
+    function setFeedback(html, type='success'){ const fb=$('#feedback'); fb.className= type==='error'?'error':'success'; fb.innerHTML=html; fb.hidden=false; }
+    function clearFeedback(){ const fb=$('#feedback'); fb.hidden=true; fb.textContent=''; fb.className=''; }
+
+    function buildCalendar(containerId){
+      const container=$(containerId);
+      const head=document.createElement('div'); head.className='cal-head';
+      const title=document.createElement('div'); title.className='cal-title';
+      const nav=document.createElement('div'); nav.className='cal-nav';
+      const prev=document.createElement('button'); prev.className='cal-btn'; prev.type='button'; prev.textContent='◀';
+      const next=document.createElement('button'); next.className='cal-btn'; next.type='button'; next.textContent='▶';
+      nav.append(prev,next); head.append(title,nav);
+      const grid=document.createElement('div'); grid.className='cal-grid';
+      container.innerHTML=''; container.append(head,grid);
+      const dow=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+      dow.forEach(d=>{ const el=document.createElement('div'); el.className='cal-dow'; el.textContent=d; grid.appendChild(el); });
+      let current=todayStart(); current.setDate(1);
+      function render(){
+        title.textContent=current.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+        while(grid.children.length>7) grid.removeChild(grid.lastChild);
+        const firstDayIndex=(new Date(current.getFullYear(), current.getMonth(),1)).getDay();
+        const daysInMonth=new Date(current.getFullYear(), current.getMonth()+1,0).getDate();
+        for(let i=0;i<firstDayIndex;i++){ const blank=document.createElement('div'); blank.className='cal-day disabled'; grid.appendChild(blank); }
+        const t0=todayStart();
+        for(let day=1;day<=daysInMonth;day++){
+          const d=new Date(current.getFullYear(), current.getMonth(), day);
+          const cell=document.createElement('div'); cell.className='cal-day'; cell.textContent=String(day);
+          const isPast=d<t0; const allowedDow=isTueOrThu(d);
+          if(isPast || !allowedDow) cell.classList.add('disabled');
+          cell.addEventListener('click',()=>{
+            if(cell.classList.contains('disabled')) return;
+            document.querySelectorAll('.cal-day.selected').forEach(x=>x.classList.remove('selected'));
+            cell.classList.add('selected');
+            const iso=toISODate(d);
+            $('#data').value=iso;
+            $('#dateLegend').textContent=`Selecionado: ${d.toLocaleDateString('pt-BR',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'})}`;
+            setBadge('Checando disponibilidade…'); loadSlots(iso);
+          });
+          grid.appendChild(cell);
+        }
+      }
+      prev.addEventListener('click',()=>{ current.setMonth(current.getMonth()-1); render(); });
+      next.addEventListener('click',()=>{ current.setMonth(current.getMonth()+1); render(); });
+      render();
+    }
+
+    function setSelectedSlot(value){ $('#horario').value=value||''; document.querySelectorAll('.slot.selected').forEach(x=>x.classList.remove('selected')); if(value){ document.querySelectorAll(`.slot[data-time="${value}"]`).forEach(x=>x.classList.add('selected')); } }
+    function renderSlots(available,busy){ const wrap=$('#slotGrid'); wrap.innerHTML=''; const times=genSlots(); const availSet=new Set(available&&available.length?available:times); const busySet=new Set(busy||[]); times.forEach(t=>{ const b=document.createElement('div'); b.className='slot'; b.textContent=t; b.dataset.time=t; const isBusy=busySet.has(t)||!availSet.has(t); if(isBusy) b.classList.add('busy'); b.addEventListener('click',()=>{ if(b.classList.contains('busy')) return; setSelectedSlot(t); $('#slotLegend').textContent=`Horário selecionado: ${t}`; }); wrap.appendChild(b); }); setSelectedSlot(''); }
+    async function loadSlots(dateStr){ const all=genSlots(); const backendConfigured=SLOTS_ENDPOINT&&SLOTS_ENDPOINT.indexOf('http')===0; try{ if(!backendConfigured){ renderSlots(all,[]); setBadge('Modo offline: sem checagem de conflitos','warn'); $('#slotLegend').textContent='Selecione um horário.'; return; } const res=await fetch(SLOTS_ENDPOINT,{ method:'POST', headers:{'Content-Type':'application/json','x-api-key':API_KEY }, body:JSON.stringify({date:dateStr})}); if(!res.ok) throw new Error('Falha ao consultar disponibilidade'); const data=await res.json(); renderSlots(data.available||all, data.busy||[]); setBadge('Horários atualizados'); $('#slotLegend').textContent='Selecione um horário disponível.'; } catch(e){ console.error(e); renderSlots(all,[]); setBadge('Falha ao checar conflitos — exibindo todos','warn'); $('#slotLegend').textContent='Selecione um horário.'; } }
+    function serializeForm(form){ const fd=new FormData(form); return Object.fromEntries(fd.entries()); }
+    function validate(formData){ const req=['cliente','empreendimento','quadra','lote','email','data','horario']; for(const k of req){ if(!formData[k] || String(formData[k]).trim()==='') return false; } const d=new Date(formData.data+'T12:00:00'); if(!(d instanceof Date)||isNaN(d)) return false; if(!isTueOrThu(d)) return false; return true; }
+    async function submitForm(e){ e.preventDefault(); clearFeedback(); setBadge('Enviando…'); const form=e.currentTarget; const payload=serializeForm(form); if(!validate(payload)){ setFeedback('Revise os campos obrigatórios e selecione uma <strong>terça</strong> ou <strong>quinta</strong>, e um <strong>horário</strong> disponível.','error'); setBadge('Pendências no formulário','err'); return; } const startISO=`${payload.data}T${payload.horario}:00`; const body={ cliente:payload.cliente.trim(), empreendimento:payload.empreendimento.trim(), quadra:payload.quadra.trim(), lote:payload.lote.trim(), emailSolicitante:payload.email.trim(), data:payload.data, horario:payload.horario, inicioISO:startISO, duracaoMin:30, observacoes:(payload.obs||'').trim(), timezoneServer:'Central Brazilian Standard Time' }; const backendConfigured=REQUEST_ENDPOINT&&REQUEST_ENDPOINT.indexOf('http')===0; if(!backendConfigured){ setFeedback('✅ Pré-visualização: solicitação pronta para envio. Configure o backend (Power Automate/Azure) nos constantes <code>REQUEST_ENDPOINT</code> e <code>SLOTS_ENDPOINT</code> para operar em produção.','success'); setBadge('Backend não configurado','warn'); return; } try{ $('#submitBtn').disabled=true; const res=await fetch(REQUEST_ENDPOINT,{ method:'POST', headers:{'Content-Type':'application/json','x-api-key':API_KEY}, body:JSON.stringify(body)}); const data=await res.json().catch(()=>({})); if(!res.ok) throw new Error(data.error||'Falha ao enviar solicitação'); setFeedback(`✅ Solicitação enviada para aprovação. Você receberá um e-mail quando o aprovador decidir. <br><br><small><em>Protocolo:</em> ${data.id || '(gerado pelo fluxo)'}.</small>`, 'success'); setBadge('Aguardando aprovação'); form.reset(); $('#dateLegend').textContent='Selecione uma data válida.'; $('#slotLegend').textContent='Escolha uma data para carregar os horários.'; document.querySelectorAll('.cal-day.selected').forEach(x=>x.classList.remove('selected')); renderSlots([],[]); } catch(err){ console.error(err); setFeedback('❌ Ocorreu um erro ao enviar sua solicitação. Tente novamente em instantes. Se persistir, contate o suporte.','error'); setBadge('Erro no envio','err'); } finally{ $('#submitBtn').disabled=false; } }
+    buildCalendar('#calendar'); renderSlots([],[]);
+    $('#form').addEventListener('submit', submitForm);
+    $('#resetBtn').addEventListener('click', ()=>{ clearFeedback(); setBadge(''); $('#dateLegend').textContent='Selecione uma data válida.'; $('#slotLegend').textContent='Escolha uma data para carregar os horários.'; document.querySelectorAll('.cal-day.selected').forEach(x=>x.classList.remove('selected')); setSelectedSlot(''); renderSlots([],[]); });
+  </script>
+</body>
+</html>
